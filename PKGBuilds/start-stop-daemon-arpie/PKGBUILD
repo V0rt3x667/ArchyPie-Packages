@@ -1,0 +1,38 @@
+# Maintainer: archypie-project <archypie-project@protonmail.com>
+
+pkgname=start-stop-daemon-arpie
+pkgver=1.23.5
+pkgrel=1
+pkgdesc='Start and stop system daemon programs'
+arch=('x86_64' 'i686' 'aarch64' 'armv7h')
+url="https://packages.debian.org/source/sid/dpkg"
+license=('GPL-2.0-or-later')
+depends=('glibc')
+makedepends=('libmd' 'perl')
+provides=('start-stop-daemon')
+conflicts=('start-stop-daemon')
+replaces=('start-stop-daemon')
+source=("http://deb.debian.org/debian/pool/main/d/dpkg/dpkg_$pkgver.tar.xz")
+md5sums=('a45b87f15ce67ae8ffb7bd1a99637932')
+options=('!debug')
+
+build() {
+    cd dpkg-${pkgver}
+
+    POD2MAN=/usr/bin/core_perl/pod2man
+    ./configure \
+        --disable-dselect \
+        --disable-update-alternatives
+
+    for dir in lib ../utils ../man; do
+       cd $dir && make
+    done
+}
+
+package() {
+    cd dpkg-${pkgver} || exit 1
+
+    install -D -m 755 utils/start-stop-daemon "${pkgdir}/usr/bin/start-stop-daemon"
+    install -D -m 644 man/start-stop-daemon.8 "${pkgdir}/usr/share/man/man8/start-stop-daemon.8"
+}
+
